@@ -40,7 +40,7 @@ function create_note(title='Новая заметка', text='Напиши св�
     new_note['text'] = text;
     new_note['date'] = humanize_date();
 
-    const note_id = 'note-'+Math.floor(Math.random() * 99999);
+    const note_id = 'note-'+Date.now();
     new_note['id'] = note_id
 
     // Записываем в массив
