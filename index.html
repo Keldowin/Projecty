@@ -1,0 +1,163 @@
+<!DOCTYPE html> <!-- Site write by KELDOWIN 2024 -->
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projecty - Главная</title>
+
+    <!-- Icon -->
+    <link rel="shortcut icon" href="assets/icon/Note.png" type="image/png">
+
+    <!-- Config -->
+    <script src="src/js/config.js"></script>
+
+    <!-- TitleManage -->
+    <script src="src/js/TitleManage.js"></script>
+    <script>
+        changeTitle(SITE_TITLE+" - Заметки");
+    </script>
+
+    <!-- NoteManage -->
+    <script src="src/js/NoteManage.js"></script>
+
+    <!-- Google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <!-- Google fonts -->
+
+    <!-- Main css style -->
+    <link rel="stylesheet" href="assets/style/style.css">
+
+    <!-- Bootstrap5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Bootstrap5 -->
+
+     <!-- Jquery 3.x-->
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <!-- side bar-->
+    <aside class="SideBarMenu">
+        <!-- Title panel-->
+        <h1 class="TitleBar">Projecty - заметки</h1>
+        <br>
+        <p class="second">[ctrl+s] - сохранить</p>
+        <hr>
+        <!-- Title panel-->
+
+        <!-- Notes section -->
+        <nav id="NotesSection">
+            <!-- Notes -->
+            <section id="Notes"></section>
+            <!-- Notes -->
+
+            <!-- Note add button-->
+            <note-add>
+                <section class="Note note-center note-last" id="NoteCreate">
+                    <note-title class="bigger">+</note-title>
+                </section>
+                <script>
+                    $('#NoteCreate').on('click', function(e){
+                         // Добавление новой заметки
+                        let new_note = create_note(); // Создаём заметку и получаем её
+                        add_note(new_note); // Добавляем её в ui
+                        click_note();
+                    });
+                </script>
+            </note-add>
+            <!-- Note add button-->
+
+            <!-- Notes section -->
+        </nav>
+    </aside>
+    </nav>
+
+    <!-- Main text editor section -->
+    <main class="NoteEdit">
+        <section>
+            <input id="NoteTitle" type="text" value="Новая заметка" size="50" max="50" placeholder="Название заметки">
+            <textarea id="NoteText" cols="70" placeholder="Напиши свои идеи..." oninput="auto_size(this)"></textarea>
+            <script>
+                let current_note = null;
+
+                function auto_size(element) {
+                    element.style.height = "5px";
+                    element.style.height = (element.scrollHeight) + "px";
+                }
+
+                // Enter textarea and save note text
+                $('#NoteText, #NoteTitle').bind('keydown', 'ctrl+s', function(e){
+                    if(e.ctrlKey && (e.which == 83)) {
+                        e.preventDefault();
+                        save_note();
+                        return false;
+                    }
+                });
+                
+                function save_note(){
+                    // Если текущая заметка пуста, то значит мы хотим сделать новую заметку 
+                    // не через +, а введия текст, добавляем такую фичу, оч удобно
+                    if(current_note == null){
+                        const note_title_value = $('#NoteTitle').val();
+                        const note_text_value = $('#NoteText').val();
+
+                        let new_note = create_note(note_title_value, note_text_value); // Создаём заметку и получаем её
+                        add_note(new_note); // Добавляем её в ui
+                        click_note();
+
+                        current_note = new_note.id
+
+                        alert("Заметка сохранена!");
+                        return;
+                    }
+                    
+                    const note_title_value = $('#NoteTitle').val();
+                    const note_text_value = $('#NoteText').val();
+
+                    modify_note(current_note, note_title_value, note_text_value);
+                    update_note_in_list(current_note);
+                    console.log('Save data: title: '+note_title_value+' text: '+note_text_value);
+                    
+                    alert("Заметка сохранена!");
+                }
+                
+                // Функция удаление заметки
+                function rm_note(element){
+                    if (confirm("Вы точно хотите удалить данную заметку?")){
+                        const parent_id = element.parentNode.parentNode.id;
+                        remove_note(parent_id);
+                        delete_note(parent_id);
+                    }
+                }
+                // Функция выбора заметки при нажатии (обновление элементов редактора)
+                function click_note(){
+                    $('.Note').on('click', function(e){
+                        if(this.id === 'NoteCreate'){return;}
+                        
+                        let note_id = this.id;
+                        current_note = note_id;
+
+                        // изменение рабочего стола
+                        update_textarea(current_note);
+
+                        // Устанавливаем заголовок страницы
+                        changeTitle(SITE_TITLE + ' - ' + this.children[0].innerText);
+                    });
+                }
+                click_note();
+                
+            </script>
+        </section>
+    </main>
+
+    <!-- NoteUI -->
+    <script src="src/js/NoteUI.js"></script>
+    <script>
+        update_notes_list();
+        click_note();
+    </script>
+</body>
+</html>
